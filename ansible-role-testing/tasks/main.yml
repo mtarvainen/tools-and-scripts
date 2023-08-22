@@ -1,0 +1,8 @@
+---
+# tasks file for test-role
+- command: cat /etc/redhat-release
+  register: multiplaybook_test_command
+
+- name: output redhat-release
+  debug:
+    var: multiplaybook_test_command.stdout_lines
