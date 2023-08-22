@@ -4,13 +4,13 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: rockylinux8-multiplaybook-test-a
+  - name: rockylinux8-playbook-a
     image: docker-rockylinux8-ansible:latest
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     pre_build_image: true
     #privileged: true
-  - name: rockylinux9-multiplaybook-test-a
+  - name: rockylinux9-playbook-a
     image: docker-rockylinux9-ansible:latest
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw

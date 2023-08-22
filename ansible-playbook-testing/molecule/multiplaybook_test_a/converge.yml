@@ -1,5 +1,0 @@
----
-- name: Converge
-  hosts: all
-
-- import_playbook: ../../multiplaybook_test_a.yml
