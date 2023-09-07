@@ -10,7 +10,6 @@ import concurrent.futures
 import pathlib
 import shutil
 import subprocess
-import threading
 import tqdm
 
 __author__ = "Mikko Tarvainen"
@@ -35,15 +34,17 @@ def fetch_payload(filelist, io):
             'input_file': input_file,
             'command': ['ffmpeg', '-y', '-loglevel', 'error', '-i', input_file]
         }
-        task['command'].extend(_get_command_params(io['input_extension'], io['output_extension']))
+        task['command'].extend(_get_params_by_id(io))
         task['command'].extend([output_file])
         payload.append(task)
     return payload
 
-def _get_command_params(input_extension, output_extension):
+def _get_params_by_id(io):
     params = []
-    if input_extension == 'flac' and output_extension == 'mp3':
+    if io['input_extension'] == 'flac' and io['output_extension'] == 'mp3':
         params = ['-ab', '320k', '-map_metadata', '0', '-id3v2_version', '3']
+    if io['output_extension'] in ['sub', 'srt']:
+        params = ['-map', '0:s:0', '-c:s', 'copy']
     # if input_extension == 'avi' and output_extension == 'mp4':
     #     pass
     return params
@@ -55,12 +56,18 @@ def process_file(task):
         returncode = process.wait()
         if returncode == 0:
             task['processed'] = True
-            task['pid'] = os.getpid()
+        task['stdout'] = stdout
+        task['stderr'] = stderr
+        task['pid'] = os.getpid()
     return task
 
 def main(args):
     dirlist = get_directories(os.getcwd())
-    io = {'input_extension': args.input_extension, 'output_extension': args.output_extension}
+    io = {
+        'input_extension': args.input_extension, 
+        'output_extension': args.output_extension, 
+        'subtitle_stream_id': args.subtitle_stream_id
+    }
     tasks = []
     for dir_item in dirlist:
         output_path = os.path.join(dir_item, args.output_extension)
@@ -76,6 +83,8 @@ def main(args):
             processes = {executor.submit(process_file, task): task for task in tasks}
             for task in concurrent.futures.as_completed(processes):
                 data = task.result()
+                if not data['processed']:
+                    print(data['stderr'])
                 pbar.update(1)
                 #print(f"[ppid={ os.getpid() }, pid={ data['pid'] }]: { data['output_file'] }")
     if args.stty_sane:
@@ -86,6 +95,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input-extension", dest="input_extension", help="Extension of input files eg. flac", action="store", required=True)
     parser.add_argument("-o", "--output-extension", dest="output_extension", help="Extension of output files eg. mp3", action="store", required=True)
+    parser.add_argument("-s", "--subtitle-stream-id", dest="subtitle_stream_id", default=1, help="Subtitle position in media stream.", action="store", required=False)
     parser.add_argument("-f", "--force", dest="force", help="Regenerate new version and overwrite old", action="store_true", default=False)
     parser.add_argument("--stty-sane", dest="stty_sane", help="Ensure optimal terminal line settings", action="store_true", default=True)
     parser.add_argument(
