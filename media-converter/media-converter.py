@@ -44,7 +44,7 @@ def _get_params_by_id(io):
     if io['input_extension'] == 'flac' and io['output_extension'] == 'mp3':
         params = ['-ab', '320k', '-map_metadata', '0', '-id3v2_version', '3']
     if io['output_extension'] in ['sub', 'srt']:
-        params = ['-map', '0:s:0', '-c:s', 'copy']
+        params = ['-map', f"0:s:{ io['subtitle_stream_id'] }", '-c:s', 'copy']
     # if input_extension == 'avi' and output_extension == 'mp4':
     #     pass
     return params
