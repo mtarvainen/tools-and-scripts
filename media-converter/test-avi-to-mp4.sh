@@ -11,3 +11,4 @@ wget --no-clobber -P ./tests/data \
     https://filesamples.com/samples/video/avi/sample_960x540.avi
 
 python3 media-converter.py -i avi -o mp4 --force
+python3 media-converter.py -i avi -o mp4 -c 24 --force
