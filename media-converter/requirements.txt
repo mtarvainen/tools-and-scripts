@@ -1,1 +1,2 @@
-tqdm==4.66.0
+chardet
+tqdm
