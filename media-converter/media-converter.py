@@ -14,7 +14,7 @@ import subprocess
 import tqdm
 
 __author__ = "Mikko Tarvainen"
-__version__ = "0.2.1"
+__version__ = "0.3.1"
 __license__ = "MIT"
 
 def get_directories(directory):
@@ -52,8 +52,6 @@ def _get_pre_params_from_io(io, input_file):
     params = ['ffmpeg', '-y', '-loglevel', 'error']
     if io['input_extension'] in ['sub', 'srt'] and io['output_extension'] in ['sub', 'srt']:
         params.extend(['-sub_charenc', _get_file_encoding(input_file)])
-    if io['subtitle_offset'] != '0.0':
-        params.extend(['-itsoffset', f"{ io['subtitle_offset'] }"])
     params.extend(['-i', input_file])
     return params
 
@@ -89,7 +87,6 @@ def main(args):
         'output_extension': args.output_extension, 
         'subtitle_stream_id': args.subtitle_stream_id,
         'crf_value': args.crf_value,
-        'subtitle_offset': args.subtitle_offset
     }
     tasks = []
     for dir_item in dirlist:
@@ -109,7 +106,7 @@ def main(args):
                 if not data['processed']:
                     print(data)
                 pbar.update(1)
-                #print(f"[ppid={ os.getpid() }, pid={ data['pid'] }]: { data['output_file'] }")
+                # print(f"[ppid={ os.getpid() }, pid={ data['pid'] }]: { data['output_file'] }")
     if args.stty_sane:
         os.system('stty sane')
     return True
@@ -120,7 +117,6 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output-extension", dest="output_extension", help="Extension of output files eg. mp3", action="store", required=True)
     parser.add_argument("--crf-value", type=int, dest="crf_value", default=0, help="H.265 video codec CRF value for MP4 media file. Lower value leads larger file size.", action="store", required=False, choices=range(16,30))
     parser.add_argument("--subtitle-stream-id", dest="subtitle_stream_id", default=0, help="Subtitle position in media stream.", action="store", required=False)
-    parser.add_argument("--subtitle-offset", dest="subtitle_offset", default='0.0', help="Subtitle offset in seconds for subtitle syncing. Only .srt format supported.", action="store", required=False)
     parser.add_argument("-f", "--force", dest="force", help="Regenerate new version and overwrite old", action="store_true", default=False)
     parser.add_argument("--stty-sane", dest="stty_sane", help="Ensure optimal terminal line settings", action="store_true", default=True)
     parser.add_argument(
