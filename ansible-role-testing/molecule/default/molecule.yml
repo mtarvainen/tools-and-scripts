@@ -5,13 +5,13 @@ driver:
   name: docker
 platforms:
   - name: rockylinux8-test-role
-    image: docker-rockylinux8-ansible:latest
+    image: geerlingguy/docker-rockylinux8-ansible:latest
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     pre_build_image: true
     #privileged: true
   - name: rockylinux9-test-role
-    image: docker-rockylinux9-ansible:latest
+    image: geerlingguy/docker-rockylinux9-ansible:latest
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     pre_build_image: true
