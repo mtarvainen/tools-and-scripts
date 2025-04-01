@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 tests*
 venv*
+.venv*
 .DS_Store
